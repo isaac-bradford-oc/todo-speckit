@@ -53,6 +53,9 @@ They do **not** authorize new scope — implement only from `features/feature-*.
 | Profile password optional; min 8 chars if provided (`400`), hashed with bcrypt | `user.controller` + client validation | Feature 4 |
 | Duplicate username or email rejected on profile update (`400`) | `user.controller` | Feature 4 |
 | Profile dropdown in `MenuBar` provides single logout entry point; standalone sign-out removed | `MenuBar.vue` | Feature 4 |
+| Todo `dueDate` optional on create and update; calendar `YYYY-MM-DD` only; invalid date returns `400` | `todo.controller` + client validation | Feature 5 |
+| Todo `dueDate: null` on update clears due date; omitting leaves unchanged | `todo.controller` | Feature 5 |
+| Incomplete todos past due date styled as overdue (error color); completed todos never styled overdue | `Dashboard.vue` + `validation.js` | Feature 5 |
 
 ## Errors (product convention)
 

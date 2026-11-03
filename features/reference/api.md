@@ -15,6 +15,7 @@
 | Lists CRUD | 2 |
 | Todos CRUD | 3 |
 | User Profile | 4 |
+| Todo Due Date | 5 |
 
 ---
 
@@ -54,29 +55,33 @@
 
 ---
 
-## Todos (Feature 3)
+## Todos (Features 3 & 5)
 
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
 | `GET` | `/todo/lists/:listId/todos` | Yes | Fetch all todos in a list (incomplete first, then createdAt) |
-| `POST` | `/todo/lists/:listId/todos` | Yes | Add todo to a list |
-| `PUT` | `/todo/todos/:id` | Yes | Update todo title and/or completed status |
+| `POST` | `/todo/lists/:listId/todos` | Yes | Add todo to a list (optional `dueDate`) |
+| `PUT` | `/todo/todos/:id` | Yes | Update todo title, completed status, and/or `dueDate` |
 | `DELETE` | `/todo/todos/:id` | Yes | Delete todo |
 
 **Create todo body:**
 ```json
 {
-  "title": "Buy milk"
+  "title": "Buy milk",
+  "dueDate": "2026-07-15"
 }
 ```
+*`dueDate` is optional. Omit it or provide `null` / `""` for no due date.*
 
 **Update todo body:**
 ```json
 {
   "title": "Buy oat milk",
-  "completed": true
+  "completed": true,
+  "dueDate": "2026-07-20"
 }
 ```
+*To clear due date on update: `{ "dueDate": null }`.*
 
 **Todo success response** (`201` create · `200` get/put):
 ```json
@@ -85,6 +90,7 @@
   "listId": 1,
   "title": "Buy milk",
   "completed": false,
+  "dueDate": "2026-07-15",
   "userId": 42,
   "createdAt": "2026-07-02T12:05:00.000Z",
   "updatedAt": "2026-07-02T12:05:00.000Z"
@@ -98,7 +104,7 @@
 }
 ```
 
-**Common todo errors:** empty title `400` with `"Todo title is required."`; > 255 chars `400` with `"Todo title must be 255 characters or fewer."`; unowned/missing list or todo `404`; unauthenticated `401`.
+**Common todo errors:** empty title `400` with `"Todo title is required."`; > 255 chars `400` with `"Todo title must be 255 characters or fewer."`; invalid due date format `400` with `"Due date must be a valid date in YYYY-MM-DD format."`; unowned/missing list or todo `404`; unauthenticated `401`.
 
 ---
 
