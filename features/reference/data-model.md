@@ -12,6 +12,7 @@
 | `lists` | Feature 2 |
 | `todos` | Feature 3 |
 | `users` (profile editing) | Feature 4 |
+| `todos.dueDate` | Feature 5 |
 
 ---
 
@@ -67,6 +68,7 @@
 | `listId` | INTEGER FK | Required → `lists.id`; cascade on list delete |
 | `title` | STRING(255) | Required; max 255 chars |
 | `completed` | BOOLEAN | Default `false` |
+| `dueDate` | DATEONLY | Optional / Nullable; defaults to `null`; `YYYY-MM-DD` |
 | `userId` | INTEGER FK | Required → `users.id`; set server-side on create |
 | `createdAt` | DATE | Sequelize timestamps |
 | `updatedAt` | DATE | Sequelize timestamps |

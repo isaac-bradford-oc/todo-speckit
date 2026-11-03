@@ -2,6 +2,12 @@
 import { ref, onMounted } from "vue";
 import listServices from "../services/listServices.js";
 import todoServices from "../services/todoServices.js";
+import {
+  formatDueDate,
+  isTodoOverdue,
+  optionalDueDateRules,
+  toDateInputValue,
+} from "../config/validation.js";
 
 const lists = ref([]);
 const loading = ref(false);
@@ -37,6 +43,7 @@ const todosError = ref("");
 // Add Todo Dialog State
 const addTodoDialog = ref(false);
 const newTodoTitle = ref("");
+const newTodoDueDate = ref("");
 const addTodoForm = ref(null);
 const addTodoError = ref("");
 const addTodoSubmitting = ref(false);
@@ -45,6 +52,7 @@ const addTodoSubmitting = ref(false);
 const editTodoDialog = ref(false);
 const editingTodo = ref(null);
 const editTodoTitle = ref("");
+const editTodoDueDate = ref("");
 const editTodoForm = ref(null);
 const editTodoError = ref("");
 const editTodoSubmitting = ref(false);
@@ -196,6 +204,7 @@ async function openItemsDialog(list) {
 
 function openAddTodoDialog() {
   newTodoTitle.value = "";
+  newTodoDueDate.value = "";
   addTodoError.value = "";
   addTodoDialog.value = true;
 }
@@ -215,12 +224,17 @@ async function handleCreateTodo() {
   addTodoSubmitting.value = true;
   addTodoError.value = "";
   try {
-    const response = await todoServices.createTodo(activeList.value.id, {
+    const payload = {
       title: newTodoTitle.value.trim(),
-    });
+    };
+    if (newTodoDueDate.value) {
+      payload.dueDate = toDateInputValue(newTodoDueDate.value);
+    }
+    const response = await todoServices.createTodo(activeList.value.id, payload);
     todos.value.push(response.data);
     addTodoDialog.value = false;
     newTodoTitle.value = "";
+    newTodoDueDate.value = "";
   } catch (error) {
     addTodoError.value = error.response?.data?.message || "Failed to create todo.";
   } finally {
@@ -244,6 +258,7 @@ async function handleToggleComplete(todo) {
 function openEditTodoDialog(todo) {
   editingTodo.value = todo;
   editTodoTitle.value = todo.title;
+  editTodoDueDate.value = todo.dueDate ? toDateInputValue(todo.dueDate) : "";
   editTodoError.value = "";
   editTodoDialog.value = true;
 }
@@ -263,9 +278,11 @@ async function handleUpdateTodo() {
   editTodoSubmitting.value = true;
   editTodoError.value = "";
   try {
-    const response = await todoServices.updateTodo(editingTodo.value.id, {
+    const payload = {
       title: editTodoTitle.value.trim(),
-    });
+      dueDate: editTodoDueDate.value ? toDateInputValue(editTodoDueDate.value) : null,
+    };
+    const response = await todoServices.updateTodo(editingTodo.value.id, payload);
     const index = todos.value.findIndex((t) => t.id === editingTodo.value.id);
     if (index !== -1) {
       todos.value[index] = response.data;
@@ -487,7 +504,7 @@ async function handleDeleteTodo() {
             <p class="text-body-1">No todos in this list yet.</p>
           </div>
 
-          <v-list v-else lines="one" class="pa-0">
+          <v-list v-else lines="two" class="pa-0">
             <template v-for="(todo, idx) in todos" :key="todo.id">
               <v-list-item class="px-0 py-1">
                 <template #prepend>
@@ -506,6 +523,17 @@ async function handleDeleteTodo() {
                 >
                   {{ todo.title }}
                 </v-list-item-title>
+
+                <v-list-item-subtitle
+                  v-if="todo.dueDate"
+                  class="todo-due-date"
+                  :class="[
+                    'text-caption',
+                    isTodoOverdue(todo) ? 'text-error font-weight-bold overdue' : 'text-medium-emphasis',
+                  ]"
+                >
+                  Due: {{ formatDueDate(todo.dueDate) }}
+                </v-list-item-subtitle>
 
                 <template #append>
                   <v-btn
@@ -553,6 +581,13 @@ async function handleDeleteTodo() {
               required
               autofocus
             />
+            <v-text-field
+              v-model="newTodoDueDate"
+              label="Due date (optional)"
+              type="date"
+              :rules="optionalDueDateRules"
+              clearable
+            />
           </v-form>
         </v-card-text>
         <v-card-actions class="justify-end">
@@ -584,6 +619,13 @@ async function handleDeleteTodo() {
               :rules="todoTitleRules"
               required
               autofocus
+            />
+            <v-text-field
+              v-model="editTodoDueDate"
+              label="Due date (optional)"
+              type="date"
+              :rules="optionalDueDateRules"
+              clearable
             />
           </v-form>
         </v-card-text>

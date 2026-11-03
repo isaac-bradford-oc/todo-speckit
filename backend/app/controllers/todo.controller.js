@@ -6,6 +6,19 @@ import {
 
 const Todo = db.todo;
 
+const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const isValidDateString = (str) => {
+  if (typeof str !== "string" || !DATE_ONLY_REGEX.test(str)) return false;
+  const [year, month, day] = str.split("-").map(Number);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+};
+
 export const findAllForList = async (req, res) => {
   const { listId } = req.params;
 
@@ -51,18 +64,23 @@ export const create = async (req, res) => {
       return res.status(400).send({ message: "Todo title must be 255 characters or fewer." });
     }
 
-    const todoPayload = {
+    let dueDate = null;
+    if (req.body.dueDate !== undefined && req.body.dueDate !== null && req.body.dueDate !== "") {
+      if (!isValidDateString(req.body.dueDate)) {
+        return res.status(400).send({
+          message: "Due date must be a valid date in YYYY-MM-DD format.",
+        });
+      }
+      dueDate = req.body.dueDate;
+    }
+
+    const todo = await Todo.create({
       listId: Number(listId),
       title,
       completed: false,
+      dueDate,
       userId: req.user.id,
-    };
-
-    if (req.body.dueDate !== undefined) {
-      todoPayload.dueDate = req.body.dueDate;
-    }
-
-    const todo = await Todo.create(todoPayload);
+    });
 
     return res.status(201).send(todo);
   } catch (error) {
@@ -95,7 +113,16 @@ export const update = async (req, res) => {
     }
 
     if (req.body.dueDate !== undefined) {
-      todo.dueDate = req.body.dueDate;
+      if (req.body.dueDate === null || req.body.dueDate === "") {
+        todo.dueDate = null;
+      } else {
+        if (!isValidDateString(req.body.dueDate)) {
+          return res.status(400).send({
+            message: "Due date must be a valid date in YYYY-MM-DD format.",
+          });
+        }
+        todo.dueDate = req.body.dueDate;
+      }
     }
 
     await todo.save();
