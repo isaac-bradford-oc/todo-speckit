@@ -13,6 +13,55 @@
 |------|---------|
 | Register, login, logout | 1 |
 | Lists CRUD | 2 |
+| Todos CRUD | 3 |
+
+---
+
+## Todos (Feature 3)
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| `GET` | `/todo/lists/:listId/todos` | Yes | Fetch all todos in a list (incomplete first, then createdAt) |
+| `POST` | `/todo/lists/:listId/todos` | Yes | Add todo to a list |
+| `PUT` | `/todo/todos/:id` | Yes | Update todo title and/or completed status |
+| `DELETE` | `/todo/todos/:id` | Yes | Delete todo |
+
+**Create todo body:**
+```json
+{
+  "title": "Buy milk"
+}
+```
+
+**Update todo body:**
+```json
+{
+  "title": "Buy oat milk",
+  "completed": true
+}
+```
+
+**Todo success response** (`201` create · `200` get/put):
+```json
+{
+  "id": 10,
+  "listId": 1,
+  "title": "Buy milk",
+  "completed": false,
+  "userId": 42,
+  "createdAt": "2026-07-02T12:05:00.000Z",
+  "updatedAt": "2026-07-02T12:05:00.000Z"
+}
+```
+
+**Delete todo success** (`200` / `204`):
+```json
+{
+  "message": "Todo was deleted successfully!"
+}
+```
+
+**Common todo errors:** empty title `400` with `"Todo title is required."`; > 255 chars `400` with `"Todo title must be 255 characters or fewer."`; unowned/missing list or todo `404`; unauthenticated `401`.
 
 ---
 

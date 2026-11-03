@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../authorization/authorization.js";
 import listController from "../controllers/list.controller.js";
+import todoController from "../controllers/todo.controller.js";
 
 const router = Router();
 
@@ -9,4 +10,8 @@ router.post("/", [authenticate], listController.create);
 router.put("/:listId", [authenticate], listController.update);
 router.delete("/:listId", [authenticate], listController.delete);
 
+router.get("/:listId/todos", [authenticate], todoController.findAllForList);
+router.post("/:listId/todos", [authenticate], todoController.create);
+
 export default router;
+
