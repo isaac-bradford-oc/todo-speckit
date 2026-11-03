@@ -14,6 +14,43 @@
 | Register, login, logout | 1 |
 | Lists CRUD | 2 |
 | Todos CRUD | 3 |
+| User Profile | 4 |
+
+---
+
+## User Profile (Feature 4)
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| `GET` | `/todo/users/:id` | Yes | Fetch authenticated user's profile |
+| `PUT` | `/todo/users/:id` | Yes | Update profile fields (name, email, username, optional password) |
+
+**Update profile body:**
+```json
+{
+  "fName": "Jane",
+  "lName": "Doe",
+  "email": "jane@example.com",
+  "username": "jdoe",
+  "password": "newpassword123"
+}
+```
+
+**Profile success response** (`200`):
+```json
+{
+  "id": 42,
+  "fName": "Jane",
+  "lName": "Doe",
+  "email": "jane@example.com",
+  "username": "jdoe",
+  "role": "worker",
+  "createdAt": "2026-07-02T12:00:00.000Z",
+  "updatedAt": "2026-07-02T12:05:00.000Z"
+}
+```
+
+**Common profile errors:** missing required field `400`; password < 8 chars `400`; duplicate username `400`; duplicate email `400`; other user's id `404`; unauthenticated `401`.
 
 ---
 
