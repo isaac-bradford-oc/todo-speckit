@@ -38,6 +38,11 @@ They do **not** authorize new scope — implement only from `features/feature-*.
 | Rule | Enforcement | Introduced |
 |------|-------------|------------|
 | Every authenticated request resolves to `req.user.id` from the session | `authenticate` | Feature 1 |
+| Lists are strictly private; cross-user read/write returns `404` (never `403`) | `list.controller` + `getAccessibleListOrNull` | Feature 2 |
+| List name trimmed before save; empty/whitespace rejected (`400`) | `list.controller` + client validation | Feature 2 |
+| List name must not exceed 100 characters (`400`) | `list.controller` + client validation | Feature 2 |
+| Lists ordered alphabetically by name ascending on retrieval | `list.controller` | Feature 2 |
+| List creator `userId` is set exclusively from `req.user.id` | `list.controller` | Feature 2 |
 
 ## Errors (product convention)
 

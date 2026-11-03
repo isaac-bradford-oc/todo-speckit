@@ -9,6 +9,7 @@
 | Table / column | Introduced |
 |----------------|------------|
 | `users`, `sessions` | Feature 1 |
+| `lists` | Feature 2 |
 
 ---
 
@@ -44,7 +45,21 @@
 
 ---
 
+## `lists`
+
+| Column | Type | Rules |
+|--------|------|-------|
+| `id` | INTEGER PK | Auto-increment |
+| `name` | STRING(100) | Required; max 100 chars |
+| `userId` | INTEGER FK | Required → `users.id`; set server-side on create |
+| `createdAt` | DATE | Sequelize timestamps |
+| `updatedAt` | DATE | Sequelize timestamps |
+
+---
+
 ## Associations
 
 * `User hasMany Session` — `onDelete: CASCADE`
 * `Session belongsTo User`
+* `User hasMany List` — `onDelete: CASCADE`
+* `List belongsTo User`
