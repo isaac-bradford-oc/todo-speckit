@@ -48,6 +48,11 @@ They do **not** authorize new scope — implement only from `features/feature-*.
 | Todo title trimmed before save; empty rejected (`400`), max 255 chars (`400`) | `todo.controller` + client validation | Feature 3 |
 | Todos sorted incomplete first, then `createdAt` ascending | `todo.controller` | Feature 3 |
 | Deleting a list cascades to all its todos | DB FK `onDelete: CASCADE` | Feature 3 |
+| Users may read and update only their own profile row (`:id = req.user.id`); cross-user returns `404` | `user.controller` + `getAccessibleUserOrNull` | Feature 4 |
+| Profile fields trimmed; missing required strings rejected (`400`) | `user.controller` | Feature 4 |
+| Profile password optional; min 8 chars if provided (`400`), hashed with bcrypt | `user.controller` + client validation | Feature 4 |
+| Duplicate username or email rejected on profile update (`400`) | `user.controller` | Feature 4 |
+| Profile dropdown in `MenuBar` provides single logout entry point; standalone sign-out removed | `MenuBar.vue` | Feature 4 |
 
 ## Errors (product convention)
 

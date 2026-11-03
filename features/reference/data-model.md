@@ -11,6 +11,7 @@
 | `users`, `sessions` | Feature 1 |
 | `lists` | Feature 2 |
 | `todos` | Feature 3 |
+| `users` (profile editing) | Feature 4 |
 
 ---
 
