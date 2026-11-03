@@ -43,6 +43,11 @@ They do **not** authorize new scope — implement only from `features/feature-*.
 | List name must not exceed 100 characters (`400`) | `list.controller` + client validation | Feature 2 |
 | Lists ordered alphabetically by name ascending on retrieval | `list.controller` | Feature 2 |
 | List creator `userId` is set exclusively from `req.user.id` | `list.controller` | Feature 2 |
+| Todos strictly private; parent list must belong to caller on create/read (`404` if unowned) | `todo.controller` + `getAccessibleListOrNull` | Feature 3 |
+| Todo operations require caller ownership (`404` if unowned) | `todo.controller` + `getAccessibleTodoOrNull` | Feature 3 |
+| Todo title trimmed before save; empty rejected (`400`), max 255 chars (`400`) | `todo.controller` + client validation | Feature 3 |
+| Todos sorted incomplete first, then `createdAt` ascending | `todo.controller` | Feature 3 |
+| Deleting a list cascades to all its todos | DB FK `onDelete: CASCADE` | Feature 3 |
 
 ## Errors (product convention)
 

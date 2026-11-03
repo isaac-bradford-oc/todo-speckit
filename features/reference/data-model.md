@@ -10,6 +10,7 @@
 |----------------|------------|
 | `users`, `sessions` | Feature 1 |
 | `lists` | Feature 2 |
+| `todos` | Feature 3 |
 
 ---
 
@@ -57,9 +58,27 @@
 
 ---
 
+## `todos`
+
+| Column | Type | Rules |
+|--------|------|-------|
+| `id` | INTEGER PK | Auto-increment |
+| `listId` | INTEGER FK | Required → `lists.id`; cascade on list delete |
+| `title` | STRING(255) | Required; max 255 chars |
+| `completed` | BOOLEAN | Default `false` |
+| `userId` | INTEGER FK | Required → `users.id`; set server-side on create |
+| `createdAt` | DATE | Sequelize timestamps |
+| `updatedAt` | DATE | Sequelize timestamps |
+
+---
+
 ## Associations
 
 * `User hasMany Session` — `onDelete: CASCADE`
 * `Session belongsTo User`
 * `User hasMany List` — `onDelete: CASCADE`
 * `List belongsTo User`
+* `List hasMany Todo` — `onDelete: CASCADE`
+* `Todo belongsTo List`
+* `User hasMany Todo` — `onDelete: CASCADE`
+* `Todo belongsTo User`
