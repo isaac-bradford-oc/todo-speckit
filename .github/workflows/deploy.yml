@@ -19,17 +19,34 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Check deployment secrets
+        id: check_secrets
+        run: |
+          if [ -z "$SERVER_SSH_KEY" ] || [ -z "$REMOTE_HOST" ] || [ -z "$FRONTEND_DEPLOY_TARGET" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::notice ::Frontend deployment skipped: SERVER_SSH_KEY, REMOTE_HOST, or FRONTEND_DEPLOY_TARGET secret not configured."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          FRONTEND_DEPLOY_TARGET: ${{ secrets.FRONTEND_DEPLOY_TARGET }}
+
       - uses: actions/setup-node@v5
+        if: steps.check_secrets.outputs.configured == 'true'
         with:
           node-version: 24
 
       - name: Install and build
+        if: steps.check_secrets.outputs.configured == 'true'
         run: |
           npm install
           npm run build
           npm run bundle
 
       - name: Deploy to server
+        if: steps.check_secrets.outputs.configured == 'true'
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -60,14 +77,31 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Check deployment secrets
+        id: check_secrets
+        run: |
+          if [ -z "$SERVER_SSH_KEY" ] || [ -z "$REMOTE_HOST" ] || [ -z "$BACKEND_DEPLOY_TARGET" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::notice ::Backend deployment skipped: SERVER_SSH_KEY, REMOTE_HOST, or BACKEND_DEPLOY_TARGET secret not configured."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          BACKEND_DEPLOY_TARGET: ${{ secrets.BACKEND_DEPLOY_TARGET }}
+
       - uses: actions/setup-node@v5
+        if: steps.check_secrets.outputs.configured == 'true'
         with:
           node-version: 24
 
       - name: Install dependencies
+        if: steps.check_secrets.outputs.configured == 'true'
         run: npm install
 
       - name: Create production .env
+        if: steps.check_secrets.outputs.configured == 'true'
         run: |
           touch .env
           echo DB_HOST="$DB_HOST" >> .env
@@ -80,9 +114,11 @@ jobs:
           echo SEQUELIZE_SYNC_ALTER="$SEQUELIZE_SYNC_ALTER" >> .env
 
       - name: Bundle deploy folder
+        if: steps.check_secrets.outputs.configured == 'true'
         run: npm run bundle
 
       - name: Deploy to server
+        if: steps.check_secrets.outputs.configured == 'true'
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
@@ -93,6 +129,7 @@ jobs:
           TARGET: ${{ secrets.BACKEND_DEPLOY_TARGET }}
 
       - name: Restart API service on server
+        if: steps.check_secrets.outputs.configured == 'true'
         uses: JimCronqvist/action-ssh@master
         with:
           hosts: "${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}"
